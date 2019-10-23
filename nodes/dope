@@ -205,9 +205,10 @@ class DopeNode(object):
     def image_callback(self, image_msg, camera_info):
         """Image callback"""
 
-        img = self.cv_bridge.imgmsg_to_cv2(image_msg, "rgb8")
+        img = self.cv_bridge.imgmsg_to_cv2(image_msg, "passthrough")
         # cv2.imwrite('img.png', cv2.cvtColor(img, cv2.COLOR_BGR2RGB))  # for debugging
-
+        #img_type = img.type()
+        #print(img_type)
         # Update camera matrix and distortion coefficients
         if self.input_is_rectified:
             P = np.matrix(camera_info.P, dtype='float64')
@@ -237,7 +238,7 @@ class DopeNode(object):
         draw = Draw(im)
 
         detection_array = Detection3DArray()
-        detection_array.header = image_msg.header
+        detection_array.header.frame_id = "camera"
 
         for m in self.models:
             # Detect object
@@ -265,7 +266,7 @@ class DopeNode(object):
                 dims = tuple(dims)
 
                 pose_msg = PoseStamped()
-                pose_msg.header = image_msg.header
+                pose_msg.header.frame_id = "camera"
                 CONVERT_SCALE_CM_TO_METERS = 100
                 pose_msg.pose.position.x = loc[0] / CONVERT_SCALE_CM_TO_METERS
                 pose_msg.pose.position.y = loc[1] / CONVERT_SCALE_CM_TO_METERS
@@ -308,6 +309,8 @@ class DopeNode(object):
         )
         self.pub_detections.publish(detection_array)
         self.publish_markers(detection_array)
+         
+        #cv2.imwrite("/home/atas/pridicted.png", (np.array(im)[..., ::-1],"bgr8"))
 
     def publish_markers(self, detection_array):
         # Delete all existing markers

@@ -67,9 +67,9 @@ import json
 import glob
 import os
 
-from PIL import Image
-from PIL import ImageDraw
-from PIL import ImageEnhance
+import Image
+import ImageDraw
+import ImageEnhance
 
 from math import acos
 from math import sqrt
@@ -1256,7 +1256,7 @@ if not opt.data == "":
             ]),
         )
     trainingdata = torch.utils.data.DataLoader(train_dataset,
-        batch_size = opt.batchsize, 
+        batch_size = 16, 
         shuffle = True,
         num_workers = opt.workers, 
         pin_memory = True
@@ -1291,7 +1291,7 @@ if not opt.datatest == "":
                                    transforms.Scale(opt.imagesize//8),
                 ]),
             ),
-        batch_size = opt.batchsize, 
+        batch_size = 16, 
         shuffle = True,
         num_workers = opt.workers, 
         pin_memory = True)
@@ -1396,7 +1396,8 @@ for epoch in range(1, opt.epochs + 1):
         if opt.data == "":
             break # lets get out of this if we are only testing
     try:
-        torch.save(net.state_dict(), '{}/net_{}_{}.pth'.format(opt.outf, opt.namefile ,epoch))
+        if(epoch > 50):
+            torch.save(net.state_dict(), '{}/net_{}_{}.pth'.format(opt.outf, opt.namefile ,epoch))
     except:
         pass
 
