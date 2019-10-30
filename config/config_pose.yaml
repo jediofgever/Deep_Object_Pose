@@ -1,5 +1,5 @@
-topic_camera: "/camera/image_raw"
-topic_camera_info: "/camera/camera_info"
+topic_camera: "/camera/color/image_raw"
+topic_camera_info: "/camera/color/camera_info"
 topic_publishing: "dope"
 input_is_rectified: True   # Whether the input image is rectified (strongly suggested!)
 downscale_height: 500      # if the input image is larger than this, scale it down to this pixel height
@@ -13,8 +13,7 @@ weights: {
     #"soup":"package://dope/weights/soup_60.pth",
     #"sugar":"package://dope/weights/sugar_60.pth",
     #"bleach":"package://dope/weights/bleach_28_dr.pth",
-    "untitled":"package://dope/weights/net_epoch_60.pth"
-
+    "object":"package://dope/weights/net_epoch_60_old.pth"
 }
 
 # Cuboid dimension in cm x,y,z
@@ -26,7 +25,7 @@ dimensions: {
     "soup": [6.7659378051757813,10.185500144958496,6.771425724029541],
     "sugar": [9.267730712890625,17.625339508056641,4.5134143829345703],
     "bleach": [10.267730712890625,26.625339508056641,7.5134143829345703],
-    "untitled": [11.2,5.0,11.2]
+    "object": [11.2,5.0,11.2]
 
 }
 
@@ -38,7 +37,7 @@ class_ids: {
     "soup":    5,
     "sugar":   6,
     "bleach":  7,
-    "untitled":  7,
+    "object":  8,
 
 }
 
@@ -50,7 +49,7 @@ draw_colors: {
     "soup": [255, 101, 0],  # orange
     "sugar": [232, 222, 12],  # yellow
     "bleach": [232, 222, 12],  # yellow
-    "untitled": [169,169,169],  # green
+    "object": [0,200,0],  # green
 
 }
 
@@ -72,7 +71,7 @@ meshes: {
 #    "mustard": "file://path/to/Dataset_Utilities/nvdu/data/ycb/aligned_cm/006_mustard_bottle/google_16k/textured.obj",
 #    "soup":    "file://path/to/Dataset_Utilities/nvdu/data/ycb/aligned_cm/005_tomato_soup_can/google_16k/textured.obj",
 #    "sugar":   "file://path/to/Dataset_Utilities/nvdu/data/ycb/aligned_cm/004_sugar_box/google_16k/textured.obj",
-    "untitled":  "file:///home/atas/Downloads/untitled.obj",
+    #"untitled":  "file:///home/atas/Downloads/untitled.obj",
 }
 
 # optional: If the specified meshes are not in meters, provide a scale here (e.g. if the mesh is in centimeters, scale should be 0.01). default scale: 1.0.
@@ -84,7 +83,7 @@ mesh_scales: {
     "soup":    0.01,
     "sugar":   0.01,
     "bleach":  0.01,
-    "untitled":  0.001,
+    "object":  0.001,
 
 }
 
@@ -92,4 +91,4 @@ mesh_scales: {
 thresh_angle: 0.5
 thresh_map: 0.01
 sigma: 3
-thresh_points: 0.1
+thresh_points: 0.05

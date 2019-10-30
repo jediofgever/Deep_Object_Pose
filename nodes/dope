@@ -10,7 +10,7 @@ listening to an image topic and publishing poses.
 """
 
 from __future__ import print_function
-
+import imutils
 import cv2
 import message_filters
 import numpy as np
@@ -184,7 +184,7 @@ class DopeNode(object):
             rospy.Publisher(
                 '~markers',
                 MarkerArray,
-                queue_size=10
+                queue_size=1
             )
 
         # Start ROS subscriber
@@ -238,7 +238,7 @@ class DopeNode(object):
         draw = Draw(im)
 
         detection_array = Detection3DArray()
-        detection_array.header.frame_id = "camera"
+        detection_array.header.frame_id = "dope_link"
 
         for m in self.models:
             # Detect object
@@ -250,6 +250,8 @@ class DopeNode(object):
             )
 
             # Publish pose and overlay cube on image
+            blank_image = np.zeros(shape=[480, 640, 3], dtype=np.uint8)
+
             for i_r, result in enumerate(results):
                 if result["location"] is None:
                     continue
@@ -266,7 +268,7 @@ class DopeNode(object):
                 dims = tuple(dims)
 
                 pose_msg = PoseStamped()
-                pose_msg.header.frame_id = "camera"
+                pose_msg.header.frame_id = "dope_link"
                 CONVERT_SCALE_CM_TO_METERS = 100
                 pose_msg.pose.position.x = loc[0] / CONVERT_SCALE_CM_TO_METERS
                 pose_msg.pose.position.y = loc[1] / CONVERT_SCALE_CM_TO_METERS
@@ -292,14 +294,22 @@ class DopeNode(object):
                 detection.bbox.size.y = dims[1] / CONVERT_SCALE_CM_TO_METERS
                 detection.bbox.size.z = dims[2] / CONVERT_SCALE_CM_TO_METERS
                 detection_array.detections.append(detection)
+                
 
                 # Draw the cube
                 if None not in result['projected_points']:
+
                     points2d = []
+
                     for pair in result['projected_points']:
                         points2d.append(tuple(pair))
+  
                     draw.draw_cube(points2d, self.draw_colors[m])
+                    cv2.rectangle(blank_image, (int(points2d[2][0]),int(points2d[2][1])), (int(points2d[7][0]),int(points2d[7][1])), (0, 255, 1), -1) 
 
+
+                    cv2.imwrite("/home/atas/pridicted.png", blank_image)
+                    print(np.array([points2d], dtype=np.int32))
         # Publish the image with results overlaid
         self.pub_rgb_dope_points.publish(
             CvBridge().cv2_to_imgmsg(
@@ -335,11 +345,12 @@ class DopeNode(object):
             marker.color.r = color[0] / 255.0
             marker.color.g = color[1] / 255.0
             marker.color.b = color[2] / 255.0
-            marker.color.a = 0.4
+            marker.color.a = 0.9
             marker.ns = "bboxes"
             marker.id = i
             marker.type = Marker.CUBE
             marker.scale = det.bbox.size
+            
             markers.markers.append(marker)
 
             # text marker
@@ -357,7 +368,7 @@ class DopeNode(object):
             marker.scale.x = 0.05
             marker.scale.y = 0.05
             marker.scale.z = 0.05
-            marker.text = '{} ({:.2f})'.format(name, det.results[0].score)
+            marker.text = '{} ({:.2f})'.format(name, det.results[0].score*2.0)
             markers.markers.append(marker)
 
             # mesh marker
